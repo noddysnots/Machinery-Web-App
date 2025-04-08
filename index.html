@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+    <!-- Wrap the CSS inclusion in <style> tags -->
+    <style>
+      <?!= HtmlService.createHtmlOutputFromFile('style').getContent(); ?>
+    </style>
+    <title>Agri Machinery Tracker</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Agricultural Machinery Details</h1>
+      <p class="required-note">Fields marked with <span class="required-asterisk">*</span> are required.</p>
+      <form id="machineryForm" onsubmit="handleFormSubmit(this)">
+        <div class="form-group">
+          <label for="farmerName">Farmer's Name:<span class="required-asterisk">*</span></label>
+          <input type="text" id="farmerName" name="farmerName" required>
+        </div>
+        <div class="form-group">
+          <label for="rtoNumber">RTO Number:<span class="required-asterisk">*</span></label>
+          <input type="text" id="rtoNumber" name="rtoNumber" required>
+        </div>
+        <div class="form-group">
+          <label for="chassisNumber">Chassis Number:<span class="required-asterisk">*</span></label>
+          <input type="text" id="chassisNumber" name="chassisNumber" required>
+        </div>
+         <div class="form-group">
+          <label for="aadharNumber">Aadhar Card Number:<span class="required-asterisk">*</span></label>
+          <!-- Using type="text" with pattern for better control over Aadhar format -->
+          <input type="text" id="aadharNumber" name="aadharNumber" required pattern="\d{12}" title="Enter a 12-digit Aadhar number without spaces">
+        </div>
+        <div class="form-group">
+          <label for="machineType">Machine Type:<span class="required-asterisk">*</span></label>
+          <select id="machineType" name="machineType" required>
+            <option value="" disabled selected>Select type...</option>
+            <option value="Tractor">Tractor</option>
+            <option value="Harvester">Harvester</option>
+            <option value="Planter">Planter</option>
+            <option value="Sprayer">Sprayer</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <hr> <!-- Separator for Aadhar Links -->
+        <p class="info-note">Please upload Aadhar front and back images to Google Drive and paste the shareable links below.</p>
+        <div class="form-group">
+          <label for="aadharFrontLink">Aadhar Front Image Link:<span class="required-asterisk">*</span></label>
+          <input type="url" id="aadharFrontLink" name="aadharFrontLink" required placeholder="https://drive.google.com/...">
+        </div>
+         <div class="form-group">
+          <label for="aadharBackLink">Aadhar Back Image Link:<span class="required-asterisk">*</span></label>
+          <input type="url" id="aadharBackLink" name="aadharBackLink" required placeholder="https://drive.google.com/...">
+        </div>
+         <hr>
+        <div class="form-group">
+            <button type="submit" id="submitButton">Submit Details</button>
+        </div>
+      </form>
+      <div id="responseMessage"></div>
+    </div>
+
+    <script>
+      function handleFormSubmit(formObject) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Basic check if form is valid (relies on HTML5 'required' attribute)
+        if (!document.getElementById('machineryForm').checkValidity()) {
+            // Optional: You could display a more specific error message here
+            // For now, rely on browser's default validation UI
+            // Force browser validation UI to show if needed (though often automatic)
+            document.getElementById('machineryForm').reportValidity();
+            return;
+        }
+
+        document.getElementById('submitButton').disabled = true; // Disable button
+        document.getElementById('responseMessage').innerText = 'Submitting...';
+
+        google.script.run.withSuccessHandler(updateResponse)
+                          .withFailureHandler(onFailure)
+                          .processForm(formObject);
+      }
+
+      function updateResponse(response) {
+         document.getElementById('responseMessage').innerText = response;
+         document.getElementById('machineryForm').reset(); // Reset form
+         document.getElementById('submitButton').disabled = false; // Re-enable button
+      }
+
+       function onFailure(error) {
+        document.getElementById('responseMessage').innerText = 'Error: ' + error.message;
+        document.getElementById('submitButton').disabled = false; // Re-enable button
+      }
+    </script>
+  </body>
+</html>
